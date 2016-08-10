@@ -242,6 +242,38 @@ class FormBuilder
     }
 
     /**
+     * Enhance options.
+     *
+     * @param  array      $options
+     *
+     * @return void
+     */
+    protected function enhanceOptions(&$options)
+    {
+        if(isset($options['name']))
+        {
+            if (!isset($options['id']))
+            {
+                $options['id'] = $options['name'];
+            }
+
+            $errors = session()->get('errors');
+            if ($errors !== null && $errors->has($options['name']))
+            {
+                $extraClass = 'has-errors';
+                if (isset($options['class']))
+                {
+                    $options['class'] .= ' ' . $extraClass;
+                }
+                else
+                {
+                    $options['class'] = $extraClass;
+                }
+            }
+        }
+    }
+
+    /**
      * Create a form input field.
      *
      * @param  string $type
@@ -256,6 +288,8 @@ class FormBuilder
         if (! isset($options['name'])) {
             $options['name'] = $name;
         }
+
+        $this->enhanceOptions($options);
 
         // We will get the appropriate value for the given field. We will look for the
         // value in the session for the value in the old input data then we'll look
@@ -480,6 +514,8 @@ class FormBuilder
 
         unset($options['size']);
 
+        $this->enhanceOptions($options);
+
         // Next we will convert the attributes into a string form. Also we have removed
         // the size attribute, as it was merely a short-cut for the rows and cols on
         // the element. Then we'll create the final textarea elements HTML for us.
@@ -557,6 +593,8 @@ class FormBuilder
             $html[] = $this->placeholderOption($options['placeholder'], $selected);
             unset($options['placeholder']);
         }
+
+        $this->enhanceOptions($options);
 
         foreach ($list as $value => $display) {
             $html[] = $this->getSelectOption($display, $value, $selected);
